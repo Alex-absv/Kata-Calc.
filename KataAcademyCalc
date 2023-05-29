@@ -1,0 +1,214 @@
+import java.util.Scanner;
+
+
+
+class Main {
+    public static void main(String[] args) {
+
+        boolean go_on=true; //признак для понимания продолжения работы программы
+        boolean go_on2=false; //признак для определения введенных цифр
+        Scanner in = new Scanner(System.in);
+        System.out.println("ВВЕДИТЕ АРИФМЕТИЧЕСКОЕ ВЫРАЖЕНИЕ:");
+        System.out.println("(без пробелов, должно содержать лишь одно из 4х арифметических действий +, -, *, / ) ");
+        System.out.println("(первое число выражение должно быть положительным!) ");
+        String expression = in.nextLine();
+        //System.out.println(expression);
+        in.close();
+
+        Calc calc1=new Calc();
+        int a=0;
+        int b=0;
+
+// !!! проверка корректности введенного арифметического выражения
+        // перевожу в char-массив строку арифметического выражения
+        char[] charArr=expression.toCharArray();
+
+        // проверка: первый и последний элементы выражения - это цифры
+        System.out.println("Проверка 1");
+        System.out.println("первый и последний элементы введенного выражения, преобразованные в char: "+charArr[0]+", "+charArr[charArr.length-1]);
+        System.out.println("expression.length()="+expression.length());
+        int arr1=expression.codePointAt(0); // .codePointAt(0) вернет номер по таблице ASCII первого символа выражения expression
+        int arrLenght=expression.codePointAt(expression.length()-1); // .codePointAt(expression.length()-1) вернет номер по таблице ASCII ппоследнего символа выражения expression
+        System.out.println("номера по ASCII первого и последнего элементов введенного выражения: "+arr1+", "+arrLenght);
+        if (arr1<48 || arr1>57 || arrLenght<48 || arrLenght>57) {
+            System.out.println("1 ERORR");
+            go_on=false;
+        }
+
+        if (!go_on) {
+            calc1.romanNumerals (expression);
+        }
+
+        // проверка: в выражении только цифры и знаки вычислений
+        System.out.println("Проверка 2");
+        for (int i=0; i<expression.length(); i++) {
+            if ((charArr[i]<42)|| (charArr[i]>57) || (charArr[i]==44) || (charArr[i]==46)) {
+                System.out.println("2 ERORR");
+                go_on=false;
+            }
+        }
+        //проверка: арифметический знак в символах, начиная со 2го и заканчивая предпоследним в выражении, только один
+        System.out.println("Проверка 3");
+        int sign=0;
+        int i_sign=0;
+        for (int i=1; i<(expression.length()-1); i++) {
+            if ((charArr[i]>=42) & (charArr[i]<=47)) {
+                sign++;
+                //запоминаем порядковый номер знака в массиве
+                i_sign=i;
+                System.out.println("i_sign="+i_sign);
+                System.out.println("charArr[" +i+ "]=" +charArr[i]+ ", sign=" + sign+", i_sign="+i_sign);
+            }
+        }
+        if (sign!=1) {
+            System.out.println("3 ERORR");
+            go_on=false;
+        }
+        System.out.println("мы здесь");
+
+        // проверка: введенные числа не более 10. я знаю порядковый номер знака выражения в массиве, буду это и
+        // использовать.Так же проверяю размер выражения (3,4 или 5ть символов)
+
+        /* НЕ ПОНИМАЮ. ПОЧЕМУ НЕ РАБОТАЕТ? НО ТОЖЕ, ЗАПИСАННОЕ В ОДНУ СТРОКУ, РАБОТАЕТ!!!
+        if (expression.length()==3) go_on2=true;
+        if ((i_sign==1)&(expression.length()==4)&(charArr[3]==48)&(charArr[2]==49)) go_on2=true;
+        if ((i_sign==2)&(expression.length()==4)&(charArr[1]==48)&(charArr[0]==49)) go_on2=true;
+        if ((i_sign==2)&(expression.length()==5)&(charArr[1]==48)&(charArr[4]==48) &(charArr[0]==49)&(charArr[3]==49)) go_on2=true;*/
+
+        if ((expression.length()==3) || ((i_sign==1)&(expression.length()==4)&(charArr[3]==48)&(charArr[2]==49)) || ((i_sign==2)&(expression.length()==4)&(charArr[1]==48)&(charArr[0]==49)) || ((i_sign==2)&(expression.length()==5)&(charArr[1]==48)&(charArr[4]==48)&(charArr[0]==49)&(charArr[3]==49))) go_on2=true;
+
+        if ((!go_on)||(!go_on2)) {
+            System.out.println("E r r o r, go_on="+go_on+" go_on2="+go_on2+",   истина=1, ложь=0");
+            System.exit (1);
+        } else {
+            if (expression.length()==3) {
+                a=charArr[0]-48;
+                b=charArr[2]-48;
+            }
+            if ((expression.length()==4)&(i_sign==1)) {
+                a=charArr[0]-48;
+                b=10;
+            }
+            if ((expression.length()==4)&(i_sign==2)) {
+                b=charArr[3]-48;
+                a=10;
+            }
+            if (expression.length()==5) {
+                a=10;
+                b=10;
+            }
+            int c=charArr[i_sign];
+            System.out.println("a="+a+", b="+b);
+            calc1.doCalc(a,b,c);
+        }
+       //System.out.println("go on. All is correct.");
+    }
+}
+class Calc{
+    //ф-я, работающая с римскими цифрами
+    void romanNumerals (String expression) {
+
+        int a=-1;
+        int b=-1;
+        // перевожу в char-массив строку арифметического выражения
+        char[] charArr=expression.toCharArray();
+
+        int arr1=expression.codePointAt(0); // .codePointAt(0) вернет номер по таблице ASCII первого символа выражения expression
+        int arrLenght=expression.codePointAt(expression.length()-1); // .codePointAt(expression.length()-1) вернет номер по таблице ASCII ппоследнего символа выражения expression
+        System.out.println("номера по ASCII первого и последнего элементов введенного выражения: "+arr1+", "+arrLenght);
+
+// проверка: в выражении только римские цифры и знаки вычислений
+        System.out.println("Проверка 2R");
+        for (int i=0; i<expression.length(); i++) {
+            if (charArr[i]!='+' & charArr[i]!='-' & charArr[i]!='*' & charArr[i]!='/' & charArr[i]!='X' & charArr[i]!='V' & charArr[i]!='I') {
+                System.out.println("2 ERORR: charArr[i]="+charArr[i]);
+                System.exit(0);
+            }
+        }
+        //проверка: арифметический знак в символах, начиная со 2го и заканчивая предпоследним в выражении, только один
+        System.out.println("Проверка 3R");
+        int sign=0;
+        int i_sign=0;
+        for (int i=1; i<(expression.length()-1); i++) {
+            if ((charArr[i]>=42) & (charArr[i]<=47)) {
+                sign++;
+                //запоминаем порядковый номер знака в массиве
+                i_sign=i;
+                System.out.println("i_sign="+i_sign);
+                System.out.println("charArr[" +i+ "]=" +charArr[i]+ ", sign=" + sign+", i_sign="+i_sign);
+            }
+        }
+        if (sign!=1) {
+            System.out.println("3R ERORR");
+            System.exit(0);
+        }
+
+        //перебор всех возможных значений от I до X
+        if (i_sign==1 & charArr[0]==73) a=1;
+        if (i_sign==2 & charArr[0]==73 & charArr[1]==73) a=2;
+        if (i_sign==3 & charArr[0]==73 & charArr[1]==73 & charArr[2]==73) a=3;
+        if (i_sign==2 & charArr[0]==73 & charArr[1]==86) a=4;
+        if (i_sign==1 & charArr[0]==86) a=5;
+        if (i_sign==2 & charArr[0]==86 & charArr[1]==73) a=6;
+        if (i_sign==3 & charArr[0]==86 & charArr[1]==73 & charArr[2]==73) a=7;
+        if (i_sign==4 & charArr[0]==86 & charArr[1]==73 & charArr[2]==73 & charArr[3]==73) a=8;
+        if (i_sign==2 & charArr[0]==73 & charArr[1]==88) a=9;
+        if (i_sign==1 & charArr[0]==88) a=10;
+
+        if ((i_sign==(expression.length()-2)) & charArr[expression.length()-1]==73) b=1;
+        if ((i_sign==expression.length()-3) & charArr[expression.length()-2]==73 & charArr[expression.length()-1]==73) b=2;
+        if ((i_sign==expression.length()-4) & charArr[expression.length()-3]==73 & charArr[expression.length()-2]==73 & charArr[expression.length()-1]==73) b=3;
+        if ((i_sign==expression.length()-3) & charArr[expression.length()-2]==73 & charArr[expression.length()-1]==86) b=4;
+        if ((i_sign==expression.length()-2) & charArr[expression.length()-1]==86) a=5;
+        if ((i_sign==expression.length()-3) & charArr[expression.length()-2]==86 & charArr[expression.length()-1]==73) a=6;
+        if ((i_sign==expression.length()-4) & charArr[expression.length()-3]==86 & charArr[expression.length()-2]==73 & charArr[expression.length()-1]==73) a=7;
+        if ((i_sign==expression.length()-5) & charArr[expression.length()-4]==86 & charArr[expression.length()-3]==73 & charArr[expression.length()-2]==73 & charArr[expression.length()-1]==73) a=8;
+        if ((i_sign==expression.length()-3) & charArr[expression.length()-2]==73 & charArr[expression.length()-1]==88) a=9;
+        if ((i_sign==expression.length()-2) & charArr[expression.length()-1]==88) a=10;
+
+        //проверка того, что в примере всё же были римские цифры:
+        //если if-ы выше не сработали, то значения a и b не поменяются и останутся -1!
+        if (a==-1 || b==-1) {
+            System.out.println("4R ERORR");
+            System.exit(0);
+        }
+        //умножение - сложно. нужно написать алгоритм перевода записи римскими цифрами чисел с 1 до 100(((
+            if (charArr[i_sign]==88) {
+                System.out.println("sorry, it's hard for me to multiply Roman numerals");
+                System.exit(0);
+            }
+        int c=charArr[i_sign];
+        System.out.println("a="+a+", b="+b);
+        int res_doCalc=doCalc(a,b,c);
+        if (res_doCalc==20) System.out.println("Resault = XX");
+        if (res_doCalc==19) System.out.println("Resault = XIX");
+        if (res_doCalc==18) System.out.println("Resault = XVIII");
+        if (res_doCalc==17) System.out.println("Resault = XVII");
+        if (res_doCalc==16) System.out.println("Resault = XVI");
+        if (res_doCalc==15) System.out.println("Resault = XV");
+        if (res_doCalc==14) System.out.println("Resault = XIV");
+        if (res_doCalc==13) System.out.println("Resault = XIII");
+        if (res_doCalc==12) System.out.println("Resault = XII");
+        if (res_doCalc==11) System.out.println("Resault = XI");
+        if (res_doCalc==10) System.out.println("Resault = X");
+        if (res_doCalc==9) System.out.println("Resault = IX");
+        if (res_doCalc==8) System.out.println("Resault = VIII");
+        if (res_doCalc==7) System.out.println("Resault = VII");
+        if (res_doCalc==6) System.out.println("Resault = VI");
+        if (res_doCalc==5) System.out.println("Resault = V");
+        if (res_doCalc==4) System.out.println("Resault = IV");
+        if (res_doCalc==3) System.out.println("Resault = III");
+        if (res_doCalc==2) System.out.println("Resault = II");
+        if (res_doCalc==1) System.out.println("Resault = I");
+    }
+
+    int doCalc(int a, int b, int c) {
+        int resault=0;
+        if (c==42) resault=a*b;
+        if (c==43) resault=a+b;
+        if (c==45) resault=a-b;
+        if (c==47) resault=a/b;
+        System.out.println("All is correct. Resault="+ resault);
+        return resault;
+    }
+}
